@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:flowable="http://flowable.org/bpmn"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.flowable.org/processdef">
+
+    <process id="leaveProcess" name="请假审批流程" isExecutable="true">
+        <documentation>员工请假审批流程</documentation>
+
+        <startEvent id="startEvent" name="开始"/>
+        
+        <userTask id="applyTask" name="提交请假申请" flowable:assignee="${userId}">
+            <documentation>员工提交请假申请</documentation>
+        </userTask>
+
+        <exclusiveGateway id="checkDaysGateway" name="判断请假天数"/>
+
+        <userTask id="leaderAuditTask" name="部门领导审批" flowable:candidateGroups="managers">
+            <documentation>部门领导审批请假申请</documentation>
+        </userTask>
+
+        <userTask id="hrAuditTask" name="HR审批" flowable:candidateGroups="hr">
+            <documentation>HR审批请假申请</documentation>
+        </userTask>
+
+        <exclusiveGateway id="approvalGateway" name="审批结果"/>
+
+        <endEvent id="endEvent" name="结束"/>
+
+        <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="applyTask"/>
+        
+        <sequenceFlow id="flow2" sourceRef="applyTask" targetRef="checkDaysGateway"/>
+
+        <sequenceFlow id="flow3" sourceRef="checkDaysGateway" targetRef="leaderAuditTask">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${endTime.isAfter(startTime.plusDays(3))}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow4" sourceRef="checkDaysGateway" targetRef="hrAuditTask">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!endTime.isAfter(startTime.plusDays(3))}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow5" sourceRef="leaderAuditTask" targetRef="approvalGateway"/>
+
+        <sequenceFlow id="flow6" sourceRef="hrAuditTask" targetRef="approvalGateway"/>
+
+        <sequenceFlow id="flow7" sourceRef="approvalGateway" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow id="flow8" sourceRef="approvalGateway" targetRef="applyTask">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == false}]]></conditionExpression>
+        </sequenceFlow>
+
+    </process>
+
+</definitions>
