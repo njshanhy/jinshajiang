@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+# jinshajiang
+the river of jinshajiang
+=======
 # Spring Boot Flowable 请假审批系统
 
 这是一个基于Spring Boot和Flowable 6.8.1的工作流管理系统，实现了完整的请假审批流程。
@@ -86,3 +90,4 @@ src/main/java/com/example/leave/
 ## 前端界面
 
 系统提供了一个简单的HTML界面，可以通过浏览器访问和操作请假审批流程。
+>>>>>>> main
